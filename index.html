@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEV — DJ</title>
+  <meta name="description" content="DEV — DJ and selector. Clubs, festivals, private bookings." />
+  <meta property="og:title" content="DEV — DJ" />
+  <meta property="og:description" content="Peak-time sets. House, techno, and the pressure in between." />
+  <meta property="og:image" content="assets/dev-02.jpg" />
+  <link rel="icon" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#070708; --ink:#f3f1ea; --muted:#9a978c; --line:rgba(243,241,234,.12); --accent:#d6ff3a; --max:1240px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:auto; }
+    body { font-family:"DM Sans",system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.55; overflow-x:hidden; }
+    body.locked { overflow:hidden; }
+    img, video { max-width:100%; display:block; }
+    a { color:inherit; text-decoration:none; }
+    button, input, textarea { font:inherit; color:inherit; }
+    .skip { position:absolute; left:12px; top:-40px; background:var(--accent); color:#111; padding:8px 12px; z-index:300; }
+    .skip:focus { top:12px; }
+
+    .loader { position:fixed; inset:0; z-index:200; background:#050506; display:grid; place-items:center; transition:opacity .7s, visibility .7s; }
+    .loader.done { opacity:0; visibility:hidden; }
+    .loader-mark { font-family:"Syne",sans-serif; font-weight:800; letter-spacing:.28em; font-size:13px; overflow:hidden; }
+    .loader-mark span { display:inline-block; animation:up .8s ease both; }
+    .loader-bar { position:absolute; left:0; bottom:0; height:2px; width:0; background:var(--accent); animation:load 1.4s ease forwards; }
+    @keyframes up { from{transform:translateY(120%)} to{transform:none} }
+    @keyframes load { to{width:100%} }
+
+    .progress { position:fixed; top:0; left:0; height:2px; width:0; background:var(--accent); z-index:90; }
+    .cursor { position:fixed; width:10px; height:10px; border-radius:50%; background:var(--accent); pointer-events:none; z-index:120; mix-blend-mode:difference; transform:translate(-50%,-50%); transition:width .2s,height .2s,opacity .2s; opacity:0; }
+    .cursor.grow { width:52px; height:52px; background:transparent; border:1px solid var(--accent); }
+    .cursor.play::after { content:"PLAY"; position:absolute; inset:0; display:grid; place-items:center; font-size:8px; letter-spacing:.16em; color:var(--accent); }
+    .noise { pointer-events:none; position:fixed; inset:0; z-index:80; opacity:.04; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+    .nav { position:fixed; top:16px; left:50%; transform:translateX(-50%); width:min(calc(100% - 28px),var(--max)); z-index:50; display:flex; align-items:center; justify-content:space-between; padding:12px 16px 12px 20px; border:1px solid var(--line); border-radius:999px; background:rgba(7,7,8,.55); backdrop-filter:blur(18px); }
+    .nav.compact { padding:8px 12px 8px 16px; background:rgba(7,7,8,.82); }
+    .logo { font-family:"Syne",sans-serif; font-weight:800; letter-spacing:.18em; font-size:13px; }
+    .logo span { color:var(--accent); }
+    .nav-links { display:flex; gap:22px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+    .nav-links a { position:relative; }
+    .nav-links a::after { content:""; position:absolute; left:0; bottom:-6px; width:0; height:1px; background:var(--accent); transition:width .25s; }
+    .nav-links a:hover, .nav-links a.active { color:var(--ink); }
+    .nav-links a:hover::after, .nav-links a.active::after { width:100%; }
+    .nav-cta { background:var(--ink); color:#111; border:0; border-radius:999px; padding:10px 16px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; cursor:pointer; }
+    .nav-cta:hover { background:var(--accent); }
+    .burger { display:none; width:40px; height:40px; border:1px solid var(--line); border-radius:50%; background:transparent; cursor:pointer; }
+    .burger span { display:block; width:16px; height:1.5px; background:var(--ink); margin:4px auto; }
+
+    .hero { min-height:100svh; position:relative; display:grid; place-items:end start; padding:120px 6vw 80px; overflow:hidden; }
+    .hero-media { position:absolute; inset:0; overflow:hidden; will-change:transform; }
+    .hero-media video, .hero-media img { width:100%; height:120%; object-fit:cover; opacity:.42; }
+    .hero-shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(7,7,8,.15),rgba(7,7,8,.2) 40%,rgba(7,7,8,.94)), linear-gradient(90deg,rgba(7,7,8,.6),transparent 50%); }
+    .slot { position:absolute; inset:0; display:grid; place-items:center; padding:24px; }
+    .slot-card { width:min(560px,92%); text-align:left; padding:22px; border:1px dashed rgba(214,255,58,.45); border-radius:18px; background:rgba(7,7,8,.62); color:var(--muted); font-size:13px; }
+    .slot-card b { display:block; color:var(--accent); font-family:"Syne",sans-serif; letter-spacing:.16em; text-transform:uppercase; font-size:11px; margin-bottom:8px; }
+    .slot-card code { color:var(--ink); font-size:12px; }
+    .slot-card ol { margin:8px 0 0 18px; }
+    .hero-copy { position:relative; z-index:2; max-width:960px; }
+    .eyebrow { font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .live-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(214,255,58,.6); animation:pulse 1.8s infinite; }
+    @keyframes pulse { 70%{ box-shadow:0 0 0 8px transparent } }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 0; }
+    .chip { border:1px solid var(--line); border-radius:999px; padding:6px 10px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+    .hero h1 { font-family:"Syne",sans-serif; font-weight:800; font-size:clamp(72px,16vw,188px); line-height:.82; letter-spacing:-.06em; overflow:hidden; }
+    .hero h1 em { font-family:"Instrument Serif",serif; font-style:italic; font-weight:400; }
+    .line { display:block; overflow:hidden; }
+    .line span { display:block; transform:translateY(110%); animation:rise 1s cubic-bezier(.16,1,.3,1) forwards; }
+    .line:nth-child(2) span { animation-delay:.12s; }
+    @keyframes rise { to{transform:none} }
+    .hero-sub { margin-top:22px; max-width:460px; color:var(--muted); font-size:16px; }
+    .hero-actions { display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; align-items:center; }
+    .sound-btn { width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:transparent; cursor:pointer; }
+    .avail { margin-top:26px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+    .avail b { color:var(--accent); font-weight:600; }
+    .scroll-hint { position:absolute; right:6vw; bottom:36px; z-index:3; display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11px; letter-spacing:.2em; text-transform:uppercase; }
+    .scroll-line { width:1px; height:46px; background:linear-gradient(var(--accent),transparent); animation:drip 1.6s ease-in-out infinite; }
+    @keyframes drip { 0%,100%{transform:scaleY(.4);opacity:.4} 50%{transform:scaleY(1);opacity:1} }
+
+    .btn { display:inline-flex; align-items:center; gap:10px; padding:13px 18px; border-radius:999px; border:1px solid var(--line); font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; cursor:pointer; background:transparent; }
+    .btn-fill { background:var(--accent); color:#111; border-color:var(--accent); }
+    .btn-ghost:hover { border-color:var(--ink); }
+
+    .marquee-wrap { border-top:1px solid var(--line); border-bottom:1px solid var(--line); overflow:hidden; padding:14px 0; background:#09090b; }
+    .marquee { display:flex; gap:38px; white-space:nowrap; width:max-content; animation:slide 28s linear infinite; font-family:"Syne",sans-serif; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+    .marquee:hover { animation-play-state:paused; }
+    .marquee b { color:var(--ink); }
+    @keyframes slide { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    section { padding:92px 6vw; position:relative; }
+    .wrap { width:min(100%,var(--max)); margin:0 auto; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:36px; border-bottom:1px solid var(--line); padding-bottom:18px; }
+    .kicker { font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+    h2 { font-family:"Syne",sans-serif; font-size:clamp(32px,5vw,56px); line-height:.95; letter-spacing:-.04em; }
+    .hint { color:var(--muted); font-size:14px; max-width:340px; }
+    .reveal { opacity:0; transform:translateY(28px); transition:opacity .8s, transform .8s; }
+    .reveal.in { opacity:1; transform:none; }
+    .delay-1 { transition-delay:.1s; }
+    .delay-2 { transition-delay:.2s; }
+
+    .about-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:48px; }
+    .about p { color:#c9c6bb; font-size:17px; margin-bottom:16px; }
+    .bio-long { display:none; }
+    .bio-long.on { display:block; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+    .stat { border-top:1px solid var(--line); padding-top:14px; }
+    .stat b { display:block; font-family:"Syne",sans-serif; font-size:28px; }
+    .stat span { color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+    .epk { margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; }
+
+    .media { position:relative; overflow:hidden; border-radius:22px; background:#121218; border:1px dashed rgba(214,255,58,.28); min-height:180px; cursor:pointer; }
+    .media.portrait { aspect-ratio:4/5; }
+    .media img, .media video { width:100%; height:100%; object-fit:cover; transform:scale(1.04); transition:transform .7s; }
+    .media:hover img, .media:hover video { transform:scale(1.1); }
+    .media.filled { border-style:solid; border-color:var(--line); }
+    .media.filled .slot { display:none; }
+    .dl { position:absolute; top:12px; right:12px; z-index:3; font-size:10px; letter-spacing:.14em; text-transform:uppercase; background:rgba(0,0,0,.55); border:1px solid var(--line); border-radius:999px; padding:6px 10px; }
+
+    .gallery { display:grid; grid-template-columns:1.4fr 1fr 1fr; grid-template-rows:280px 280px; gap:12px; }
+
+    .clips { display:grid; grid-template-columns:1.6fr 1fr; gap:12px; }
+    .clip.main { min-height:520px; }
+    .clip { min-height:250px; }
+    .clip-stack { display:grid; gap:12px; }
+    .clip-meta { position:absolute; left:16px; bottom:16px; right:16px; z-index:2; display:flex; justify-content:space-between; align-items:end; font-size:12px; letter-spacing:.08em; text-transform:uppercase; pointer-events:none; }
+    .play-badge { width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:var(--accent); color:#111; }
+
+    .tabs { display:flex; gap:8px; }
+    .tab { border:1px solid var(--line); background:transparent; border-radius:999px; padding:8px 12px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; cursor:pointer; color:var(--muted); }
+    .tab.on { color:#111; background:var(--accent); border-color:var(--accent); }
+    .date-row { display:grid; grid-template-columns:140px 1fr auto auto; gap:18px; align-items:center; padding:20px 0; border-bottom:1px solid var(--line); }
+    .date-row:hover { padding-left:10px; background:linear-gradient(90deg,rgba(214,255,58,.05),transparent); }
+    .date-row time { font-family:"Syne",sans-serif; letter-spacing:.08em; font-size:13px; color:var(--accent); }
+    .date-row h3 { font-size:18px; }
+    .date-row p { color:var(--muted); font-size:13px; }
+    .pill { font-size:11px; letter-spacing:.14em; text-transform:uppercase; border:1px solid var(--line); padding:8px 12px; border-radius:999px; color:var(--muted); }
+    .ticket { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+    .quote-wrap { margin-top:48px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    blockquote { border-top:1px solid var(--line); padding-top:18px; color:#d8d4c8; font-family:"Instrument Serif",serif; font-size:26px; line-height:1.25; font-style:italic; }
+    blockquote cite { display:block; margin-top:12px; font-family:"DM Sans",sans-serif; font-style:normal; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+    .press-row { margin-top:36px; display:flex; gap:28px; flex-wrap:wrap; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; font-size:12px; opacity:.7; }
+
+    .sound-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .mix { padding:22px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(180deg,#101014,#0b0b0d); min-height:200px; display:flex; flex-direction:column; transition:transform .3s, border-color .3s; }
+    .mix:hover { transform:translateY(-6px); border-color:rgba(214,255,58,.4); }
+    .mix small { color:var(--accent); letter-spacing:.16em; text-transform:uppercase; font-size:11px; }
+    .mix h3 { margin:10px 0 8px; font-family:"Syne",sans-serif; }
+    .mix p { color:var(--muted); font-size:14px; }
+    .mix-foot { margin-top:auto; padding-top:22px; display:flex; align-items:end; justify-content:space-between; gap:12px; }
+    .listen { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); border-bottom:1px solid var(--accent); padding-bottom:2px; }
+    .bars { display:flex; align-items:end; gap:4px; height:28px; }
+    .bars i { display:block; width:4px; background:var(--accent); height:20%; }
+    .mix:hover .bars i { animation:eq 1s ease-in-out infinite; }
+    .bars i:nth-child(2){ animation-delay:.1s }
+    .bars i:nth-child(3){ animation-delay:.2s }
+    .bars i:nth-child(4){ animation-delay:.05s }
+    @keyframes eq { 0%,100%{height:18%} 50%{height:100%} }
+
+    .contact { background:radial-gradient(60% 80% at 80% 10%,rgba(214,255,58,.08),transparent 50%), var(--bg); }
+    .contact-grid { display:grid; grid-template-columns:.9fr 1.1fr; gap:48px; }
+    .emails { display:grid; gap:18px; margin-top:28px; }
+    .email-card { border-top:1px solid var(--line); padding-top:14px; }
+    .email-card span { display:block; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+    .email-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .email-card a { font-family:"Syne",sans-serif; font-size:22px; }
+    .copy { border:1px solid var(--line); background:transparent; border-radius:999px; padding:6px 10px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; cursor:pointer; color:var(--muted); }
+    form { display:grid; gap:12px; padding:24px; border:1px solid var(--line); border-radius:22px; background:rgba(255,255,255,.02); }
+    label { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+    input, textarea { width:100%; background:#0c0c0f; border:1px solid var(--line); border-radius:12px; padding:13px 14px; outline:none; }
+    input:focus, textarea:focus { border-color:rgba(214,255,58,.55); }
+    textarea { min-height:110px; resize:vertical; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-note { color:var(--muted); font-size:12px; }
+
+    footer { padding:48px 6vw 40px; border-top:1px solid var(--line); }
+    .foot-top { display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:40px; }
+    .foot-name { font-family:"Syne",sans-serif; font-size:clamp(48px,10vw,120px); line-height:.8; letter-spacing:-.06em; }
+    .socials { display:flex; gap:18px; align-items:center; flex-wrap:wrap; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+    .socials a:hover { color:var(--accent); }
+    .foot-bot { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+
+    .lightbox { position:fixed; inset:0; z-index:140; background:rgba(0,0,0,.88); display:none; place-items:center; padding:40px; }
+    .lightbox.on { display:grid; }
+    .lightbox img { max-width:min(1100px,92vw); max-height:82vh; object-fit:contain; border-radius:12px; }
+    .lightbox button { position:absolute; top:18px; right:18px; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:#111; cursor:pointer; }
+
+    .guide { position:fixed; right:18px; bottom:18px; z-index:60; width:min(360px, calc(100% - 24px)); }
+    .guide-toggle { margin-left:auto; display:block; background:var(--accent); color:#111; border:0; border-radius:999px; padding:10px 14px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; cursor:pointer; }
+    .guide-panel { display:none; margin-bottom:10px; max-height:48vh; overflow:auto; background:#101014; border:1px solid var(--line); border-radius:16px; padding:16px; font-size:13px; color:#cfcbc0; }
+    .guide.open .guide-panel { display:block; }
+    .guide-panel h4 { color:var(--ink); font-family:"Syne",sans-serif; margin-bottom:8px; }
+    .guide-panel li { margin:8px 0 8px 16px; }
+
+    @media (max-width:900px) {
+      .nav-links { display:none; }
+      .burger { display:block; }
+      .nav.open .nav-links { display:flex; flex-direction:column; position:absolute; top:64px; left:0; right:0; background:#0b0b0d; border:1px solid var(--line); border-radius:18px; padding:18px; }
+      .about-grid, .clips, .contact-grid, .sound-grid, .gallery, .form-row, .date-row, .quote-wrap, .foot-top, .foot-bot { grid-template-columns:1fr; }
+      .date-row { gap:8px; }
+      .gallery { grid-template-rows:none; }
+      .g1 { grid-column:auto; grid-row:auto; min-height:320px; }
+      .cursor, .scroll-hint { display:none; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      * { animation:none !important; transition:none !important; }
+      .reveal, .line span { opacity:1; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#about">Skip to content</a>
+  <div class="loader" id="loader"><div class="loader-mark"><span>DJ DEV</span></div><div class="loader-bar"></div></div>
+  <div class="progress" id="progress"></div>
+  <div class="cursor" id="cursor"></div>
+  <div class="noise"></div>
+
+  <header class="nav" id="nav">
+    <a class="logo" href="#top">DJ <span>DEV</span></a>
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#gallery">Images</a>
+      <a href="#live">Clips</a>
+      <a href="#dates">Dates</a>
+      <a href="#sound">Sound</a>
+      <a href="#contact">Book</a>
+    </nav>
+    <a class="nav-cta magnet" href="#contact">Book DEV</a>
+    <button class="burger" aria-label="Menu" onclick="document.getElementById('nav').classList.toggle('open')"><span></span><span></span></button>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-media" id="heroParallax">
+      <video id="heroVideo" autoplay muted loop playsinline poster="">
+        <source src="assets/hero.mp4" type="video/mp4" />
+      </video>
+      <div class="slot" data-empty="hero">
+        <div class="slot-card">
+          <b>Hero video</b>
+          Muted looping club clip. Crowd + booth.
+          <ol>
+            <li><code>assets/hero.mp4</code></li>
+            <li>1920×1080, 8–20s</li>
+          </ol>
+        </div>
+      </div>
+      <div class="hero-shade"></div>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="live-dot"></span> Selector · Clubs · Afterhours</p>
+      <h1><span class="line"><span>DEV</span></span><span class="line"><span><em>in the room.</em></span></span></h1>
+      <div class="chips"><span class="chip">House</span><span class="chip">Techno</span><span class="chip">Peak-time</span><span class="chip">4–6h sets</span></div>
+      <p class="hero-sub">Peak-time sets built for big rooms and late rooms. House, techno, and the pressure in between.</p>
+      <div class="hero-actions">
+        <a class="btn btn-fill magnet" href="#contact">Request a date</a>
+        <a class="btn btn-ghost magnet" href="#live">Watch live clips</a>
+        <button class="sound-btn" id="heroSound" type="button" title="Unmute hero clip">♪</button>
+      </div>
+      <p class="avail">Status · <b>Taking Q4 2026 / Q1 2027</b> · Europe + select US</p>
+    </div>
+    <div class="scroll-hint">Scroll<span class="scroll-line"></span></div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee" aria-hidden="true">
+      <span><b>DEV</b> · House · Techno · Club · Festival · Afterhours · Booking 2026 ·</span>
+      <span><b>DEV</b> · House · Techno · Club · Festival · Afterhours · Booking 2026 ·</span>
+      <span><b>DEV</b> · House · Techno · Club · Festival · Afterhours · Booking 2026 ·</span>
+      <span><b>DEV</b> · House · Techno · Club · Festival · Afterhours · Booking 2026 ·</span>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div><p class="kicker">01 — Profile</p><h2>Not a brand deck.<br />A night that holds.</h2></div>
+        <p class="hint">Short bio first. Long bio is for press. Portrait on the right.</p>
+      </div>
+      <div class="about-grid">
+        <div class="about reveal">
+          <p>DEV plays rooms that want tension, not wallpaper. The set is physical: low-end first, then the cut that makes the floor lean forward.</p>
+          <div class="bio-long" id="bioLong">
+            <p>Bookings cover clubs, warehouse nights, brand events, and private rooms that should still feel like a proper night out. The preference is a 4–6 hour window, not a 60-minute cameo.</p>
+            <p>Replace this paragraph with the long press bio. Third person. 150–250 words.</p>
+          </div>
+          <button class="btn btn-ghost" id="bioToggle" type="button">Read full bio</button>
+          <div class="stats">
+            <div class="stat"><b>2016</b><span>First residency</span></div>
+            <div class="stat"><b data-count="40">0</b><span>Cities played</span></div>
+            <div class="stat"><b>4–6h</b><span>Preferred set</span></div>
+          </div>
+          <div class="epk">
+            <a class="btn btn-ghost" href="assets/DEV-EPK.pdf">Download EPK</a>
+            <a class="btn btn-ghost" href="assets/DEV-tech-rider.pdf">Tech rider</a>
+            <a class="btn btn-ghost" href="assets/DEV-press-kit.zip">Photo pack .zip</a>
+          </div>
+        </div>
+        <div class="media portrait reveal delay-2 zoom" data-full="">
+          <img src="" alt="DEV portrait at the decks" />
+          <a class="dl" href="assets/dev-01.jpg" download>Download</a>
+          <div class="slot"><div class="slot-card"><b>Image 01 — portrait</b>Vertical booth photo. <code>assets/dev-01.jpg</code></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery" style="padding-top:20px">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div><p class="kicker">02 — Stills</p><h2>On the decks.</h2></div>
+        <p class="hint">Click a filled photo to open it large.</p>
+      </div>
+      <div class="gallery">
+        <div class="media g1 reveal zoom" data-full=""><img src="" alt="Wide booth" /><div class="slot"><div class="slot-card"><b>Image 02</b><code>assets/dev-02.jpg</code></div></div></div>
+        <div class="media reveal delay-1 zoom" data-full=""><img src="" alt="Crowd" /><div class="slot"><div class="slot-card"><b>Image 03</b><code>assets/dev-03.jpg</code></div></div></div>
+        <div class="media reveal delay-2 zoom" data-full=""><img src="" alt="Decks" /><div class="slot"><div class="slot-card"><b>Image 04</b><code>assets/dev-04.jpg</code></div></div></div>
+        <div class="media reveal delay-1 zoom" data-full=""><img src="" alt="Room" /><div class="slot"><div class="slot-card"><b>Image 05</b><code>assets/dev-05.jpg</code></div></div></div>
+        <div class="media reveal delay-2 zoom" data-full=""><img src="" alt="After" /><div class="slot"><div class="slot-card"><b>Image 06</b><code>assets/dev-06.jpg</code></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="live">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div><p class="kicker">03 — Live clips</p><h2>Big rooms.<br />Short proof.</h2></div>
+        <p class="hint">Hover to play. These are proof-of-room, not a catalog of tracks.</p>
+      </div>
+      <div class="clips">
+        <div class="media clip main reveal hoverplay">
+          <video muted loop playsinline poster=""><source src="" type="video/mp4" /></video>
+          <div class="slot"><div class="slot-card"><b>Clip A</b><code>assets/clip-main.mp4</code></div></div>
+          <div class="clip-meta"><div>Main room</div><div class="play-badge">▶</div></div>
+        </div>
+        <div class="clip-stack">
+          <div class="media clip reveal delay-1 hoverplay">
+            <video muted loop playsinline poster=""><source src="" type="video/mp4" /></video>
+            <div class="slot"><div class="slot-card"><b>Clip B</b><code>assets/clip-02.mp4</code></div></div>
+            <div class="clip-meta"><div>Open air</div><div class="play-badge">▶</div></div>
+          </div>
+          <div class="media clip reveal delay-2 hoverplay">
+            <video muted loop playsinline poster=""><source src="" type="video/mp4" /></video>
+            <div class="slot"><div class="slot-card"><b>Clip C</b><code>assets/clip-03.mp4</code></div></div>
+            <div class="clip-meta"><div>Afterhours</div><div class="play-badge">▶</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dates" style="padding-top:20px">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div><p class="kicker">04 — Selected rooms</p><h2>Where it landed.</h2></div>
+        <div class="tabs">
+          <button class="tab on" data-filter="up">Upcoming</button>
+          <button class="tab" data-filter="past">Archive</button>
+        </div>
+      </div>
+      <div class="dates">
+        <div class="date-row reveal" data-when="up"><time>SEP 2026</time><div><h3>Printworks</h3><p>London · Guest set</p></div><span class="pill">Club</span><a class="ticket" href="#">Info</a></div>
+        <div class="date-row reveal" data-when="up"><time>NOV 2026</time><div><h3>Warehouse Project</h3><p>Manchester</p></div><span class="pill">Festival week</span><a class="ticket" href="#">Info</a></div>
+        <div class="date-row reveal" data-when="past"><time>AUG 2026</time><div><h3>Hï Ibiza</h3><p>Ibiza · Peak room</p></div><span class="pill">Residency</span><a class="ticket" href="#">Info</a></div>
+        <div class="date-row reveal" data-when="past"><time>MAY 2026</time><div><h3>Nowadays</h3><p>New York</p></div><span class="pill">US</span><a class="ticket" href="#">Info</a></div>
+      </div>
+      <div class="quote-wrap">
+        <blockquote class="reveal">“He built the room instead of decorating it.”<cite>— Replace with a real promoter / press line.</cite></blockquote>
+        <blockquote class="reveal delay-1">“Peak-time without the cheap drop.”<cite>— RA / mix review belongs here.</cite></blockquote>
+      </div>
+      <div class="press-row reveal"><span>Resident Advisor</span><span>Mixmag</span><span>DJ Mag</span><span>Insomnia</span></div>
+    </div>
+  </section>
+
+  <section id="sound">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div><p class="kicker">05 — Sound</p><h2>Listen off-site.</h2></div>
+        <p class="hint">These open SoundCloud / Mixcloud. The landing page stays a page, not a player.</p>
+      </div>
+      <div class="sound-grid">
+        <a class="mix reveal" href="#" target="_blank" rel="noopener">
+          <small>Mix 01</small>
+          <h3>After 3AM</h3>
+          <p>Closed-door recording. No crowd mic.</p>
+          <div class="mix-foot"><span class="listen">Listen on SoundCloud</span><div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+        </a>
+        <a class="mix reveal delay-1" href="#" target="_blank" rel="noopener">
+          <small>Mix 02</small>
+          <h3>Main room pressure</h3>
+          <p>Peak-time cut.</p>
+          <div class="mix-foot"><span class="listen">Listen on Mixcloud</span><div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+        </a>
+        <a class="mix reveal delay-2" href="#" target="_blank" rel="noopener">
+          <small>Mix 03</small>
+          <h3>Warm-up knife</h3>
+          <p>Slower open. Shows range.</p>
+          <div class="mix-foot"><span class="listen">Listen on SoundCloud</span><div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div><p class="kicker">06 — Booking</p><h2>Put DEV in the booth.</h2></div>
+        <p class="hint">Copy the address or send the form. Both are for promoters, not fans.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="reveal">
+          <p style="color:#c9c6bb;max-width:420px">Date, city, room size. Serious inquiries only.</p>
+          <div class="emails">
+            <div class="email-card"><span>Bookings</span><div class="email-line"><a href="mailto:bookings@djdev.com">bookings@djdev.com</a><button class="copy" data-copy="bookings@djdev.com" type="button">Copy</button></div></div>
+            <div class="email-card"><span>Management / press</span><div class="email-line"><a href="mailto:office@djdev.com">office@djdev.com</a><button class="copy" data-copy="office@djdev.com" type="button">Copy</button></div></div>
+            <div class="email-card"><span>Direct</span><div class="email-line"><a href="mailto:dev@djdev.com">dev@djdev.com</a><button class="copy" data-copy="dev@djdev.com" type="button">Copy</button></div></div>
+          </div>
+        </div>
+        <form class="reveal delay-2" id="bookForm">
+          <div class="form-row">
+            <div><label for="name">Name</label><input id="name" required placeholder="Your name" /></div>
+            <div><label for="email">Email</label><input id="email" type="email" required placeholder="you@venue.com" /></div>
+          </div>
+          <div class="form-row">
+            <div><label for="city">City / venue</label><input id="city" placeholder="Berlin / Berghain" /></div>
+            <div><label for="date">Date</label><input id="date" type="date" /></div>
+          </div>
+          <div><label for="msg">Details</label><textarea id="msg" placeholder="Room size, set length, fee range, travel."></textarea></div>
+          <button class="btn btn-fill magnet" type="submit" style="justify-content:center">Open booking email</button>
+          <p class="form-note">Opens a pre-filled mail to bookings@djdev.com.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot-top">
+      <div class="foot-name">DEV</div>
+      <div class="socials">
+        <a href="#">Instagram</a>
+        <a href="#">SoundCloud</a>
+        <a href="#">RA</a>
+        <button class="copy" id="sharePage" type="button">Copy page link</button>
+      </div>
+    </div>
+    <div class="foot-bot"><div>© 2026 DEV</div><a href="#top">Back to top</a></div>
+  </footer>
+
+  <div class="lightbox" id="lightbox">
+    <button type="button" aria-label="Close" onclick="closeLite()">×</button>
+    <img id="liteImg" alt="DEV still" />
+  </div>
+
+  <aside class="guide" id="guide">
+    <div class="guide-panel">
+      <h4>What still needs dropping in</h4>
+      <ol>
+        <li>Hero / stills / clips — same files as before</li>
+        <li>Mix cards — replace each <code>href="#"</code> with SoundCloud or Mixcloud</li>
+        <li>PDFs + photo zip in <code>assets/</code></li>
+        <li>Real emails, venues, quotes</li>
+      </ol>
+    </div>
+    <button class="guide-toggle" onclick="document.getElementById('guide').classList.toggle('open')">How to fill this page</button>
+  </aside>
+
+  <script>
+    const loader = document.getElementById("loader");
+    setTimeout(() => loader.classList.add("done"), 1400);
+
+    const progress = document.getElementById("progress");
+    const nav = document.getElementById("nav");
+    const cursor = document.getElementById("cursor");
+    const heroMedia = document.getElementById("heroParallax");
+    const sections = [...document.querySelectorAll("section[id]")];
+    const links = [...document.querySelectorAll(".nav-links a")];
+    let currentY = 0, targetY = 0;
+    addEventListener("scroll", () => { targetY = scrollY; }, { passive:true });
+    (function tick(){
+      currentY += (targetY - currentY) * .08;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progress.style.width = (max>0 ? (targetY/max)*100 : 0) + "%";
+      nav.classList.toggle("compact", targetY > 40);
+      if (heroMedia) heroMedia.style.transform = `translateY(${currentY*.18}px)`;
+      let current = "top";
+      sections.forEach(s => { if (s.offsetTop <= targetY + 120) current = s.id; });
+      links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#"+current));
+      requestAnimationFrame(tick);
+    })();
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener("click", e => {
+        const id = a.getAttribute("href");
+        const el = document.querySelector(id);
+        if (!el || id === "#") return;
+        e.preventDefault();
+        nav.classList.remove("open");
+        const start = scrollY, end = el.getBoundingClientRect().top + scrollY;
+        const t0 = performance.now();
+        (function step(now){
+          const p = Math.min(1, (now-t0)/700);
+          scrollTo(0, start + (end-start)*(1-Math.pow(1-p,3)));
+          if (p<1) requestAnimationFrame(step);
+        })(t0);
+      });
+    });
+
+    const io = new IntersectionObserver(ents => ents.forEach(e => { if (e.isIntersecting) e.target.classList.add("in"); }), {threshold:.16});
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    document.querySelectorAll("img").forEach(img => {
+      const box = img.closest(".media");
+      if (!img.getAttribute("src")) img.style.display = "none";
+      img.addEventListener("load", () => {
+        img.style.display = "block";
+        box?.classList.add("filled");
+        if (box && !box.dataset.full) box.dataset.full = img.getAttribute("src");
+      });
+      img.addEventListener("error", () => { img.style.display="none"; box?.classList.remove("filled"); });
+    });
+    document.querySelectorAll("video").forEach(vid => {
+      const src = vid.querySelector("source")?.getAttribute("src");
+      const box = vid.closest(".media") || vid.parentElement;
+      if (!src) vid.style.display = "none";
+      else vid.addEventListener("loadeddata", () => {
+        box?.classList?.add("filled");
+        const empty = box.querySelector('[data-empty="hero"]');
+        if (empty) empty.style.display = "none";
+      });
+    });
+
+    const city = document.querySelector('[data-count="40"]');
+    if (city) {
+      const cIo = new IntersectionObserver(ents => ents.forEach(e => {
+        if (!e.isIntersecting || city.dataset.done) return;
+        city.dataset.done = "1";
+        let n=0; const t=setInterval(()=>{ n++; city.textContent=n+"+"; if(n>=40) clearInterval(t); }, 30);
+      }), {threshold:.6});
+      cIo.observe(city);
+    }
+
+    document.getElementById("bioToggle").addEventListener("click", function(){
+      const long = document.getElementById("bioLong");
+      long.classList.toggle("on");
+      this.textContent = long.classList.contains("on") ? "Show less" : "Read full bio";
+    });
+
+    const heroVid = document.getElementById("heroVideo");
+    document.getElementById("heroSound").addEventListener("click", function(){
+      heroVid.muted = !heroVid.muted;
+      this.textContent = heroVid.muted ? "♪" : "🔇";
+      if (!heroVid.muted) heroVid.play().catch(()=>{});
+    });
+
+    document.querySelectorAll(".hoverplay").forEach(card => {
+      const vid = card.querySelector("video");
+      card.addEventListener("mouseenter", () => { if (vid?.querySelector("source")?.src) vid.play().catch(()=>{}); });
+      card.addEventListener("mouseleave", () => vid?.pause());
+    });
+
+    const lite = document.getElementById("lightbox");
+    const liteImg = document.getElementById("liteImg");
+    window.closeLite = () => { lite.classList.remove("on"); document.body.classList.remove("locked"); };
+    document.querySelectorAll(".zoom").forEach(card => {
+      card.addEventListener("click", e => {
+        if (e.target.closest(".dl")) return;
+        const src = card.dataset.full || card.querySelector("img")?.getAttribute("src");
+        if (!src) return;
+        liteImg.src = src; lite.classList.add("on"); document.body.classList.add("locked");
+      });
+    });
+    lite.addEventListener("click", e => { if (e.target===lite) closeLite(); });
+    addEventListener("keydown", e => { if (e.key==="Escape") closeLite(); });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
+        tab.classList.add("on");
+        document.querySelectorAll(".date-row").forEach(row => {
+          row.style.display = row.dataset.when === tab.dataset.filter ? "grid" : "none";
+        });
+      });
+    });
+    document.querySelectorAll(".date-row").forEach(row => {
+      if (row.dataset.when !== "up") row.style.display = "none";
+    });
+
+    document.querySelectorAll(".copy").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const val = btn.id === "sharePage" ? location.href : btn.dataset.copy;
+        try { await navigator.clipboard.writeText(val); btn.textContent = "Copied"; setTimeout(()=>btn.textContent = btn.id==="sharePage"?"Copy page link":"Copy", 1200); } catch {}
+      });
+    });
+
+    document.getElementById("bookForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const body = encodeURIComponent(`Name: ${name.value}\nEmail: ${email.value}\nCity / venue: ${city.value}\nDate: ${date.value}\n\n${msg.value}`);
+      location.href = `mailto:bookings@djdev.com?subject=${encodeURIComponent("Booking request — DEV")}&body=${body}`;
+    });
+
+    document.querySelectorAll(".magnet").forEach(btn => {
+      btn.addEventListener("mousemove", e => {
+        const r = btn.getBoundingClientRect();
+        btn.style.transform = `translate(${(e.clientX-r.left-r.width/2)*.18}px, ${(e.clientY-r.top-r.height/2)*.18}px)`;
+      });
+      btn.addEventListener("mouseleave", () => btn.style.transform = "");
+    });
+
+    let mx = innerWidth/2, my = innerHeight/2;
+    addEventListener("mousemove", e => { mx=e.clientX; my=e.clientY; cursor.style.opacity="1"; });
+    (function loop(){ cursor.style.left=mx+"px"; cursor.style.top=my+"px"; requestAnimationFrame(loop); })();
+    document.querySelectorAll("a,button,.media,.mix").forEach(el => {
+      el.addEventListener("mouseenter", () => { cursor.classList.add("grow"); if (el.classList.contains("hoverplay")) cursor.classList.add("play"); });
+      el.addEventListener("mouseleave", () => cursor.classList.remove("grow","play"));
+    });
+  </script>
+</body>
+</html>
