@@ -1,17 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-IN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DEV — DJ</title>
-  <meta name="description" content="DEV. House and techno. Clubs, festivals, private bookings." />
-  <meta property="og:title" content="DEV — DJ" />
-  <meta property="og:description" content="House and techno. Long sets. Clubs and afterhours." />
-  <meta property="og:image" content="assets/dev-02.jpg" />
-  <link rel="icon" href="assets/favicon.png" />
+  <title>DEV | DJ in Vidarbha, Maharashtra | Amravati, Akola</title>
+  <meta name="description" content="DEV is a house and techno DJ from Vidarbha, Maharashtra, available for club nights, festivals, private events and bookings in Amravati, Akola, Nagpur, Pune and across Maharashtra." />
+  <meta name="author" content="DEV" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="theme-color" content="#070708" />
+  <link rel="canonical" href="https://djdev.in/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="DEV | DJ in Vidarbha, Maharashtra" />
+  <meta property="og:description" content="House and techno DJ from Vidarbha, Maharashtra. Book DEV for clubs, festivals and private events." />
+  <meta property="og:url" content="https://djdev.in/" />
+  <meta property="og:image" content="https://djdev.in/assets/dev-02.jpg" />
+  <meta property="og:image:alt" content="DEV performing as a DJ in Maharashtra" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DEV | DJ in Vidarbha, Maharashtra" />
+  <meta name="twitter:description" content="House and techno DJ from Vidarbha, Maharashtra. Amravati, Akola, Nagpur and Pune bookings." />
+  <meta name="twitter:image" content="https://djdev.in/assets/dev-02.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://djdev.in/#website",
+        "url": "https://djdev.in/",
+        "name": "DEV — DJ",
+        "description": "Official website of DEV, a house and techno DJ from Vidarbha, Maharashtra.",
+        "inLanguage": "en-IN",
+        "publisher": { "@id": "https://djdev.in/#person" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://djdev.in/#person",
+        "name": "DEV",
+        "jobTitle": "DJ",
+        "url": "https://djdev.in/",
+        "description": "House and techno DJ from Vidarbha, Maharashtra, available for club, festival, private and event bookings.",
+        "image": "https://djdev.in/assets/dev-01.jpg",
+        "homeLocation": {
+          "@type": "Place",
+          "name": "Vidarbha, Maharashtra, India"
+        },
+        "areaServed": [
+          { "@type": "AdministrativeArea", "name": "Vidarbha" },
+          { "@type": "City", "name": "Amravati" },
+          { "@type": "City", "name": "Akola" },
+          { "@type": "City", "name": "Nagpur" },
+          { "@type": "City", "name": "Pune" },
+          { "@type": "State", "name": "Maharashtra" }
+        ],
+        "genre": ["House", "Techno"]
+      },
+      {
+        "@type": "Service",
+        "@id": "https://djdev.in/#booking-service",
+        "name": "DJ bookings with DEV",
+        "serviceType": "DJ performance",
+        "provider": { "@id": "https://djdev.in/#person" },
+        "areaServed": [
+          { "@type": "State", "name": "Maharashtra" },
+          { "@type": "City", "name": "Amravati" },
+          { "@type": "City", "name": "Akola" },
+          { "@type": "City", "name": "Nagpur" },
+          { "@type": "City", "name": "Pune" }
+        ],
+        "url": "https://djdev.in/#contact"
+      }
+    ]
+  }
+  </script>
   <style>
     :root {
       --bg: #070708;
@@ -49,19 +112,18 @@
       transition: background .25s linear;
     }
     .grain {
-      z-index: 30; opacity: .035; mix-blend-mode: screen;
+      z-index: 30; opacity: .028; mix-blend-mode: screen;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      animation: grain 1.2s steps(4) infinite;
+      background-size: 220px 220px;
+      animation: grainPulse 12s ease-in-out infinite;
     }
     .vignette {
       z-index: 29;
       background: radial-gradient(ellipse at center, transparent 44%, rgba(0,0,0,.42) 100%);
     }
-    @keyframes grain {
-      0%, 100% { transform: translate(0, 0); }
-      25% { transform: translate(-1%, 1%); }
-      50% { transform: translate(1%, -1%); }
-      75% { transform: translate(-1%, -2%); }
+    @keyframes grainPulse {
+      0%, 100% { opacity: .024; }
+      50% { opacity: .038; }
     }
     .skip {
       position: absolute; left: 12px; top: -40px;
@@ -330,13 +392,6 @@
       pointer-events: none;
     }
 
-    .tabs { display: flex; gap: 8px; flex-shrink: 0; }
-    .tab {
-      border: 1px solid var(--line); background: transparent; border-radius: 999px;
-      padding: 7px 12px; font-size: 11px; letter-spacing: .12em;
-      text-transform: uppercase; cursor: pointer; color: var(--muted);
-    }
-    .tab.on { color: #111; background: var(--accent); border-color: var(--accent); }
     .date-row {
       display: grid; grid-template-columns: 110px 1fr auto auto;
       gap: 16px; align-items: center; padding: 16px 10px;
@@ -466,7 +521,7 @@
   </style>
 </head>
 <body>
-  <a class="skip" href="#about">Skip to content</a>
+  <a class="skip" href="#main">Skip to content</a>
   <div class="ambient" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
@@ -483,7 +538,7 @@
       <a href="#about">About</a>
       <a href="#gallery">Stills</a>
       <a href="#live">Clips</a>
-      <a href="#dates">Dates</a>
+      <a href="#dates">Areas</a>
       <a href="#sound">Mixes</a>
       <a href="#contact">Book</a>
     </nav>
@@ -491,9 +546,10 @@
     <button class="burger" aria-label="Menu" onclick="document.getElementById('nav').classList.toggle('open')"><span></span><span></span></button>
   </header>
 
+  <main id="main">
   <section class="hero" id="top">
-    <div class="hero-media">
-      <video id="heroVideo" autoplay muted loop playsinline poster="">
+    <div class="hero-media" id="heroParallax">
+      <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="assets/dev-02.jpg">
         <source src="assets/hero.mp4" type="video/mp4" />
       </video>
       <div class="slot" data-empty="hero">
@@ -509,50 +565,46 @@
       <div class="hero-shade"></div>
     </div>
     <div class="hero-copy">
-      <p class="eyebrow">Club · Festival · Afterhours</p>
+      <p class="eyebrow">Vidarbha · Maharashtra · House / Techno</p>
       <h1>DEV<br /><em>on the floor.</em></h1>
-      <p class="hero-sub">House and techno. Four to six hours. Built for rooms that actually dance.</p>
+      <p class="hero-sub">House and techno from Vidarbha. Long-form sets for club nights, festivals, private events and rooms that actually dance.</p>
       <div class="hero-actions">
         <a class="btn btn-fill" href="#contact">Request a date</a>
         <a class="btn btn-ghost" href="#live">Live clips</a>
         <button class="sound-btn" id="heroSound" type="button" title="Unmute hero clip">♪</button>
       </div>
-      <p class="avail">Open · <b>Q4 2026 / Q1 2027</b> · Europe + select US</p>
+      <p class="avail">Bookings · <b>Amravati · Akola · Nagpur · Pune</b> · Maharashtra</p>
     </div>
   </section>
 
-  <div class="strip"><b>DEV</b> · House · Techno · Club · Festival · Afterhours · Booking 2026</div>
+  <div class="strip"><b>DEV</b> · DJ from Vidarbha · House · Techno · Club · Festival · Private events · Maharashtra</div>
 
   <section id="about">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
           <p class="kicker">01 — Profile</p>
-          <h2>Resident energy.<br />Guest discipline.</h2>
+          <h2>Vidarbha energy.<br />Maharashtra reach.</h2>
         </div>
-        <p class="hint">Short version for bookers. Full bio for press.</p>
+        <p class="hint">House and techno DJ based in Maharashtra. Available for serious bookings.</p>
       </div>
       <div class="about-grid">
         <div class="about reveal">
-          <p>DEV plays house and techno with weight. Low end first. Vocals only when they earn the space. The job is simple: keep the room moving without turning it into a trailer.</p>
+          <p>DEV is a house and techno DJ from Vidarbha, Maharashtra. The sound is built around weight, movement and long-form sets that give a room time to build properly. Available for DJ bookings in Amravati, Akola, Nagpur, Pune and across Maharashtra.</p>
           <div class="bio-long" id="bioLong">
-            <p>Working since 2016. Clubs, warehouses, festival tents, and private rooms that still need to feel like a night out. Preference is a 4–6 hour window — enough time to open, tighten, and close without rushing the last hour into a highlight reel.</p>
-            <p>Bookings through the form or bookings@djdev.com. Tech rider and photos sit in the links below once the files are in the assets folder.</p>
+            <p>Based in the Vidarbha region, DEV is available for club nights, festivals, private events, brand experiences and destination bookings across Maharashtra. The preferred format is a four-to-six-hour set, with enough space to move from a considered opening into a high-energy peak.</p>
+            <p>For bookings in Amravati, Akola, Nagpur, Pune or elsewhere in Maharashtra, use the booking form with the date, venue, capacity and set requirements.</p>
           </div>
           <button class="btn btn-ghost" id="bioToggle" type="button">Full bio</button>
           <div class="stats">
-            <div class="stat"><b>2016</b><span>First residency</span></div>
-            <div class="stat"><b data-count="40">0</b><span>Cities</span></div>
+            <div class="stat"><b>VIDARBHA</b><span>From the region</span></div>
+            <div class="stat"><b>MH</b><span>Booking region</span></div>
             <div class="stat"><b>4–6h</b><span>Preferred set</span></div>
           </div>
-          <div class="epk">
-            <a class="btn btn-ghost" href="assets/DEV-EPK.pdf">EPK</a>
-            <a class="btn btn-ghost" href="assets/DEV-tech-rider.pdf">Tech rider</a>
-            <a class="btn btn-ghost" href="assets/DEV-press-kit.zip">Photos</a>
-          </div>
+          <p class="form-note">Press photos and technical details are available on request.</p>
         </div>
         <div class="media portrait reveal zoom" data-full="">
-          <img src="assets/dev-01.jpg" alt="DEV at the decks" />
+          <img src="assets/dev-01.jpg" alt="DEV performing at the decks in Maharashtra" loading="eager" fetchpriority="high" />
           <div class="slot"><div class="slot-card"><b>Image 01 — portrait</b>Vertical booth shot. <code>assets/dev-01.jpg</code></div></div>
         </div>
       </div>
@@ -566,27 +618,27 @@
           <p class="kicker">02 — Stills</p>
           <h2>Booth and room.</h2>
         </div>
-        <p class="hint">Click a filled photo to open it.</p>
+        <p class="hint">Press, promo and live-room stills from the DEV project.</p>
       </div>
       <div class="gallery">
         <div class="media g1 reveal zoom" data-full="">
-          <img src="assets/dev-02.jpg" alt="Wide booth" />
+          <img src="assets/dev-02.jpg" alt="DEV DJ booth and dance floor in Maharashtra" loading="lazy" />
           <div class="slot"><div class="slot-card"><b>Image 02</b><code>assets/dev-02.jpg</code></div></div>
         </div>
         <div class="media reveal zoom" data-full="">
-          <img src="assets/dev-03.jpg" alt="Crowd" />
+          <img src="assets/dev-03.jpg" alt="Crowd at a DEV house and techno DJ set" loading="lazy" />
           <div class="slot"><div class="slot-card"><b>Image 03</b><code>assets/dev-03.jpg</code></div></div>
         </div>
         <div class="media reveal zoom" data-full="">
-          <img src="assets/dev-04.jpg" alt="Decks" />
+          <img src="assets/dev-04.jpg" alt="DJ decks during a DEV performance" loading="lazy" />
           <div class="slot"><div class="slot-card"><b>Image 04</b><code>assets/dev-04.jpg</code></div></div>
         </div>
         <div class="media reveal zoom" data-full="">
-          <img src="assets/dev-05.jpg" alt="Room" />
+          <img src="assets/dev-05.jpg" alt="Club room and lighting during a DEV DJ set" loading="lazy" />
           <div class="slot"><div class="slot-card"><b>Image 05</b><code>assets/dev-05.jpg</code></div></div>
         </div>
         <div class="media reveal zoom" data-full="">
-          <img src="assets/dev-06.jpg" alt="After" />
+          <img src="assets/dev-06.jpg" alt="Afterhours atmosphere at a DEV DJ performance" loading="lazy" />
           <div class="slot"><div class="slot-card"><b>Image 06</b><code>assets/dev-06.jpg</code></div></div>
         </div>
       </div>
@@ -628,38 +680,35 @@
     <div class="wrap">
       <div class="section-head reveal">
         <div>
-          <p class="kicker">04 — Dates</p>
-          <h2>Selected rooms.</h2>
+          <p class="kicker">04 — Areas</p>
+          <h2>Bookings across Maharashtra.</h2>
         </div>
-        <div class="tabs">
-          <button class="tab on" data-filter="up">Upcoming</button>
-          <button class="tab" data-filter="past">Archive</button>
-        </div>
+        <p class="hint">Local bookings across Vidarbha, plus selected Maharashtra cities.</p>
       </div>
       <div class="dates">
-        <div class="date-row reveal" data-when="up">
-          <time>SEP 2026</time>
-          <div><h3>Printworks</h3><p>London · Guest</p></div>
-          <span class="pill">Club</span>
-          <a class="ticket" href="#">Info</a>
+        <div class="date-row reveal">
+          <time>HOME REGION</time>
+          <div><h3>Amravati</h3><p>Vidarbha · Maharashtra</p></div>
+          <span class="pill">Local</span>
+          <a class="ticket" href="#contact">Book</a>
         </div>
-        <div class="date-row reveal" data-when="up">
-          <time>NOV 2026</time>
-          <div><h3>Warehouse Project</h3><p>Manchester</p></div>
-          <span class="pill">Warehouse</span>
-          <a class="ticket" href="#">Info</a>
+        <div class="date-row reveal">
+          <time>VIDARBHA</time>
+          <div><h3>Akola</h3><p>DJ bookings · Maharashtra</p></div>
+          <span class="pill">Local</span>
+          <a class="ticket" href="#contact">Book</a>
         </div>
-        <div class="date-row reveal" data-when="past">
-          <time>AUG 2026</time>
-          <div><h3>Hï Ibiza</h3><p>Ibiza · Peak room</p></div>
-          <span class="pill">Club</span>
-          <a class="ticket" href="#">Info</a>
+        <div class="date-row reveal">
+          <time>MAHARASHTRA</time>
+          <div><h3>Nagpur</h3><p>Club, festival and private events</p></div>
+          <span class="pill">Available</span>
+          <a class="ticket" href="#contact">Book</a>
         </div>
-        <div class="date-row reveal" data-when="past">
-          <time>MAY 2026</time>
-          <div><h3>Nowadays</h3><p>New York</p></div>
-          <span class="pill">US</span>
-          <a class="ticket" href="#">Info</a>
+        <div class="date-row reveal">
+          <time>MAHARASHTRA</time>
+          <div><h3>Pune</h3><p>Selected bookings · India</p></div>
+          <span class="pill">Available</span>
+          <a class="ticket" href="#contact">Book</a>
         </div>
       </div>
     </div>
@@ -675,24 +724,24 @@
         <p class="hint">SoundCloud / Mixcloud. Page stays a page.</p>
       </div>
       <div class="sound-grid">
-        <a class="mix reveal" href="#" target="_blank" rel="noopener">
+        <article class="mix reveal">
           <small>Mix 01</small>
           <h3>After 3AM</h3>
           <p>Closed door. No crowd mic.</p>
           <div class="mix-foot"><span class="listen">SoundCloud</span></div>
-        </a>
-        <a class="mix reveal" href="#" target="_blank" rel="noopener">
+        </article>
+        <article class="mix reveal">
           <small>Mix 02</small>
           <h3>Main room</h3>
           <p>Peak-time cut. 128–132.</p>
           <div class="mix-foot"><span class="listen">Mixcloud</span></div>
-        </a>
-        <a class="mix reveal" href="#" target="_blank" rel="noopener">
+        </article>
+        <article class="mix reveal">
           <small>Mix 03</small>
           <h3>Warm-up</h3>
           <p>Slower open. Shows the range.</p>
           <div class="mix-foot"><span class="listen">SoundCloud</span></div>
-        </a>
+        </article>
       </div>
     </div>
   </section>
@@ -704,31 +753,24 @@
           <p class="kicker">06 — Booking</p>
           <h2>Date, city, room.</h2>
         </div>
-        <p class="hint">Promoters and press. Not fan mail.</p>
+          <p class="hint">Promoters, venues and event organisers across Maharashtra.</p>
       </div>
       <div class="contact-grid">
         <div class="reveal">
-          <p style="color:#c9c6bb;max-width:400px">Send the room size, set length, and a fee range. If those are missing, it waits.</p>
+          <p style="color:#c9c6bb;max-width:400px">For bookings in Amravati, Akola, Nagpur, Pune and across Maharashtra, send the date, venue, capacity and set requirements.</p>
           <div class="emails">
             <div class="email-card">
               <span>Bookings</span>
               <div class="email-line">
-                <a href="mailto:bookings@djdev.com">bookings@djdev.com</a>
-                <button class="copy" data-copy="bookings@djdev.com" type="button">Copy</button>
+                <a href="mailto:bookings@djdev.in">bookings@djdev.in</a>
+                <button class="copy" data-copy="bookings@djdev.in" type="button">Copy</button>
               </div>
             </div>
             <div class="email-card">
               <span>Press / management</span>
               <div class="email-line">
-                <a href="mailto:office@djdev.com">office@djdev.com</a>
-                <button class="copy" data-copy="office@djdev.com" type="button">Copy</button>
-              </div>
-            </div>
-            <div class="email-card">
-              <span>Direct</span>
-              <div class="email-line">
-                <a href="mailto:dev@djdev.com">dev@djdev.com</a>
-                <button class="copy" data-copy="dev@djdev.com" type="button">Copy</button>
+                <a href="mailto:bookings@djdev.in">bookings@djdev.in</a>
+                <button class="copy" data-copy="bookings@djdev.in" type="button">Copy</button>
               </div>
             </div>
           </div>
@@ -739,27 +781,25 @@
             <div><label for="email">Email</label><input id="email" name="email" type="email" required placeholder="you@venue.com" /></div>
           </div>
           <div class="form-row">
-            <div><label for="venue">City / venue</label><input id="venue" name="venue" placeholder="Berlin / Berghain" /></div>
+            <div><label for="venue">City / venue</label><input id="venue" name="venue" placeholder="Amravati / venue name" /></div>
             <div><label for="date">Date</label><input id="date" name="date" type="date" /></div>
           </div>
           <div><label for="msg">Details</label><textarea id="msg" name="msg" placeholder="Capacity, set length, fee range, travel."></textarea></div>
           <button class="btn btn-fill" type="submit">Open booking email</button>
-          <p class="form-note">Opens a pre-filled mail to bookings@djdev.com.</p>
+          <p class="form-note">Opens a pre-filled mail to bookings@djdev.in.</p>
         </form>
       </div>
     </div>
   </section>
+  </main>
 
   <footer>
-    <div class="foot">
+      <div class="foot">
       <div class="foot-name">DEV</div>
       <div class="socials">
-        <a href="#">Instagram</a>
-        <a href="#">SoundCloud</a>
-        <a href="#">RA</a>
         <button class="copy" id="sharePage" type="button">Copy link</button>
       </div>
-      <div class="copy-tiny">© 2026 DEV · <a href="#top">Top</a></div>
+      <div class="copy-tiny">© 2026 DEV · Maharashtra · <a href="#top">Top</a></div>
     </div>
   </footer>
 
@@ -840,12 +880,17 @@
 
     document.querySelectorAll("img").forEach(img => {
       const box = img.closest(".media");
-      if (!img.getAttribute("src")) img.style.display = "none";
-      img.addEventListener("load", () => {
+      const markImageLoaded = () => {
+        if (!img.naturalWidth) return;
         img.style.display = "block";
         box?.classList.add("filled");
+        const slot = box?.querySelector(".slot");
+        if (slot) slot.style.display = "none";
         if (box && !box.dataset.full) box.dataset.full = img.getAttribute("src");
-      });
+      };
+      if (!img.getAttribute("src")) img.style.display = "none";
+      else if (img.complete) markImageLoaded();
+      img.addEventListener("load", markImageLoaded);
       img.addEventListener("error", () => {
         img.style.display = "none";
         box?.classList.remove("filled");
@@ -862,21 +907,6 @@
         if (empty) empty.style.display = "none";
       });
     });
-
-    const cities = document.querySelector('[data-count="40"]');
-    if (cities) {
-      const cIo = new IntersectionObserver(ents => ents.forEach(e => {
-        if (!e.isIntersecting || cities.dataset.done) return;
-        cities.dataset.done = "1";
-        let n = 0;
-        const t = setInterval(() => {
-          n++;
-          cities.textContent = n + "+";
-          if (n >= 40) clearInterval(t);
-        }, 30);
-      }), { threshold: .6 });
-      cIo.observe(cities);
-    }
 
     document.getElementById("bioToggle").addEventListener("click", function () {
       const long = document.getElementById("bioLong");
@@ -917,19 +947,6 @@
     lite.addEventListener("click", e => { if (e.target === lite) closeLite(); });
     addEventListener("keydown", e => { if (e.key === "Escape") closeLite(); });
 
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
-        tab.classList.add("on");
-        document.querySelectorAll(".date-row").forEach(row => {
-          row.style.display = row.dataset.when === tab.dataset.filter ? "grid" : "none";
-        });
-      });
-    });
-    document.querySelectorAll(".date-row").forEach(row => {
-      if (row.dataset.when !== "up") row.style.display = "none";
-    });
-
     document.querySelectorAll(".copy").forEach(btn => {
       btn.addEventListener("click", async () => {
         const val = btn.id === "sharePage" ? location.href : btn.dataset.copy;
@@ -950,7 +967,7 @@
       const date = document.getElementById("date").value;
       const msg = document.getElementById("msg").value;
       const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCity / venue: ${venue}\nDate: ${date}\n\n${msg}`);
-      location.href = `mailto:bookings@djdev.com?subject=${encodeURIComponent("Booking request — DEV")}&body=${body}`;
+      location.href = `mailto:bookings@djdev.in?subject=${encodeURIComponent("DJ booking request — DEV")}&body=${body}`;
     });
   </script>
 </body>
